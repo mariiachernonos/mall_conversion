@@ -1,22 +1,28 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinValueValidator, MaxValueValidator
-from mall_conversion.ads.models import Ad
+from ads.models import Ad
 
 
-class Visitor(AbstractUser):
-    id = models.AutoField()
+class User(AbstractUser):
     username = models.CharField(max_length=30, unique=True)
-    is_staff = False
 
     def __str__(self):
         return self.email
 
 
-class Advertiser(AbstractUser):
-    id = models.AutoField()
-    username = models.CharField(max_length=30, unique=True)
-    is_staff = True
+class Visitor(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    user.is_staff = False
+    ads_watched = models.ManyToManyField(Ad)
 
     def __str__(self):
-        return self.email
+        return self.user.email
+
+
+class Advertiser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    user.is_staff = True
+    ads_created = models.ForeignKey(Ad, on_delete=models.DO_NOTHING, default=None)
+
+    def __str__(self):
+        return self.user.email
